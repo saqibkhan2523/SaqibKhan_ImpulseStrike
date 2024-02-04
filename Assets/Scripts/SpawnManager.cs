@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,6 +18,7 @@ public class SpawnManager : MonoBehaviour
     private List<GameObject> cages = new List<GameObject>();
 
     public int totalFriends = 0;
+    [SerializeField] TextMeshProUGUI totalFriendsText;
 
     public bool gamePause = false;
     public bool gameOver = false;
@@ -31,9 +33,12 @@ public class SpawnManager : MonoBehaviour
     public GameObject gameWinPanel;
     public GameObject gamePausePanel;
 
+
+
     // Start is called before the first frame update
     void Start()
     {
+        
         player = GameObject.Find("Player");
         totalFriends = 0;
         SpawnCages();
@@ -44,7 +49,10 @@ public class SpawnManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        totalFriendsText.text = "Friendly: " + totalFriends;
         GameWinCondition();
+
+        
 
         if(Input.GetKeyDown(KeyCode.P))
         {
@@ -59,6 +67,19 @@ public class SpawnManager : MonoBehaviour
         {
             ResumeGame();
         }
+    }
+
+    //Call from start UnPuase Game
+    public void LockAndHideCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    public void UnLockAndHideCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     void SpawnCages()
@@ -114,12 +135,14 @@ public class SpawnManager : MonoBehaviour
             gameOver = true;
             gameWin = true;
             gameWinPanel.gameObject.SetActive(true);
+            UnLockAndHideCursor();
             Invoke("RestartGame", 3);
         }
     }
 
     public void GameLoseCondition()
     {
+        UnLockAndHideCursor();
         gameOver = true;
         gameLose = true;
         gameLosePanel.gameObject.SetActive(true);
@@ -127,12 +150,14 @@ public class SpawnManager : MonoBehaviour
 
     public void PauseGame()
     {
+        UnLockAndHideCursor();
         gamePause = true;
         gamePausePanel.gameObject.SetActive(true);
     }
 
     public void ResumeGame()
     {
+        LockAndHideCursor();
         gamePause = false;
         gamePausePanel.gameObject.SetActive(false);
 
@@ -140,11 +165,13 @@ public class SpawnManager : MonoBehaviour
 
     public void RestartGame()
     {
+        LockAndHideCursor();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void Quit()
     {
+        UnLockAndHideCursor();
         SceneManager.LoadScene("Main");
     }
     public Transform ReturnTargetForEnemy()

@@ -15,8 +15,11 @@ public class CageScript : MonoBehaviour
 
     private SpawnManager spawnManager;
 
+    private AudioSource audioSource;
+
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();
         spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
     }
@@ -26,6 +29,7 @@ public class CageScript : MonoBehaviour
         if(other.gameObject.CompareTag("Player") && !doorReadyToOpen)
         {
             Debug.Log("Player Collided");
+
             doorReadyToOpen = true;
         }
     }
@@ -34,6 +38,7 @@ public class CageScript : MonoBehaviour
     {
         if(doorReadyToOpen)
         {
+            audioSource.Play();
             animator.SetBool("OpenDoor", true);
             doorReadyToOpen = false;
         }
@@ -44,12 +49,15 @@ public class CageScript : MonoBehaviour
         if(character.gameObject.CompareTag("Enemy"))
         {
             //character.GetComponent<EnemyScript>().moveAllowed = true;
+            character.GetComponent<EnemyScript>().isCageDoorOpen = true;
             character.GetComponent<EnemyScript>().EnemyMove(true);
             character.GetComponent<EnemyScript>().SetTargetToFollow(spawnManager.ReturnTargetForEnemy());
         }
         if (character.gameObject.CompareTag("Friend"))
         {
+            
             spawnManager.activeFriends.Add(character.gameObject);
+            character.GetComponent<FriendlyScript>().isCageDoorOpen = true;
             character.GetComponent<FriendlyScript>().moveAllowed = true;
         }
 

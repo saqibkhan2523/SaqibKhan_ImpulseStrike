@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyAttack : MonoBehaviour
 {
+    private int attackDamage = 10;
     private SpawnManager spawnManager;
 
     private void Start()
@@ -14,8 +15,7 @@ public class EnemyAttack : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Friend"))
         {
-            other.gameObject.GetComponent<FriendlyScript>().DecreaseFriendlyHealth(70);
-            spawnManager.GameLoseCondition();
+            other.gameObject.GetComponent<FriendlyScript>().DecreaseFriendlyHealth(attackDamage);
         }
         if(other.gameObject.CompareTag("Player"))
         {

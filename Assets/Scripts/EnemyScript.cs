@@ -8,13 +8,19 @@ public class EnemyScript : MonoBehaviour
 {
     public Transform tragetTransform;
     private NavMeshAgent agent;
+    public float maxHealth = 70f;
     public float enemyHealth = 70f;
     private Animator animator;
     private SpawnManager spawnManager;
     public bool moveAllowed = false;
+    public bool isCageDoorOpen = false;
+
+    private FloatingHealthBar floatingHealthBar;
     // Start is called before the first frame update
     void Start()
     {
+        floatingHealthBar = GetComponentInChildren<FloatingHealthBar>();
+        enemyHealth = maxHealth;
         spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
         agent = GetComponent<NavMeshAgent>();
         tragetTransform = GameObject.Find("Player").GetComponent<Transform>();
@@ -24,43 +30,55 @@ public class EnemyScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (moveAllowed && !spawnManager.gameOver && !spawnManager.gamePause)
+        if (!spawnManager.gameOver && !spawnManager.gamePause)
         {
             
-            if (tragetTransform != null)
-            {
-                agent.destination = tragetTransform.position;
-            }
-            else
-            {
-                SetTargetToFollow(spawnManager.ReturnTargetForEnemy());
-            }
+            
             if (enemyHealth <= 0)
             {
-                Destroy(gameObject);
+                animator.SetBool("Death", true);
+                //Destroy(gameObject);
             }
 
-            if(Vector3.Distance(agent.transform.position, tragetTransform.position) <= agent.stoppingDistance)
+            if (moveAllowed && enemyHealth > 0)
             {
-                print("Distance <= ");
-                EnemyMove(false);
-                EnemyAttack(true);
+                if (tragetTransform != null)
+                {
+                    agent.destination = tragetTransform.position;
+                }
+                else
+                {
+                    SetTargetToFollow(spawnManager.ReturnTargetForEnemy());
+                }
             }
-            else if(Vector3.Distance(agent.transform.position, tragetTransform.position) > agent.stoppingDistance)
+
+            if (isCageDoorOpen)
             {
-                print("Distance > ");
-                EnemyAttack(false);
-                EnemyMove(true);
+                if (Vector3.Distance(agent.transform.position, tragetTransform.position) <= agent.stoppingDistance)
+                {
+                    //print("Distance <= ");
+                    EnemyMove(false);
+                    EnemyAttack(true);
+                }
+                else if (Vector3.Distance(agent.transform.position, tragetTransform.position) > agent.stoppingDistance)
+                {
+                    //print("Distance > ");
+                    EnemyAttack(false);
+                    EnemyMove(true);
+                }
             }
+            
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        //Debug.Log("Enemy was hit");
         if(other.gameObject.CompareTag("Bullet") && moveAllowed)
         {
-            print("hitting enemy");
+            //print("hitting enemy");
             DecreaseEnemyHealth(20);
+
         }
 
         //if(other.gameObject.CompareTag("Player") && moveAllowed)
@@ -71,6 +89,8 @@ public class EnemyScript : MonoBehaviour
 
     public void DecreaseEnemyHealth(int decreaseAmount)
     {
+        //Debug.Log("inside the health function");
+        floatingHealthBar.UpdateHealth(enemyHealth, maxHealth);
         enemyHealth -= decreaseAmount;
     }
 
@@ -89,5 +109,16 @@ public class EnemyScript : MonoBehaviour
     {
         tragetTransform = target;
        
+    }
+
+    public void DestroyEnemy()
+    {
+        Destroy(gameObject);
+    }
+
+    public void DisableEnemyColliderAndNavMesh()
+    {
+        this.GetComponent<NavMeshAgent>().enabled = false;
+        this.GetComponent<CapsuleCollider>().enabled = false;
     }
 }

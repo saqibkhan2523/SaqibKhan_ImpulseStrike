@@ -7,14 +7,19 @@ public class FriendlyScript : MonoBehaviour
 {
     private Transform playerTransform;
     private NavMeshAgent agent;
+    public float maxHealth = 70f;
     public float friendlyHealth = 70f;
     public bool moveAllowed = false;
     private Animator animator;
     private SpawnManager spawnManager;
+    public bool isCageDoorOpen = false;
 
+    private FloatingHealthBar floatingHealthBar;
     // Start is called before the first frame update
     void Start()
     {
+        floatingHealthBar = GetComponentInChildren<FloatingHealthBar>();
+        animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
         playerTransform = GameObject.Find("Player").GetComponent<Transform>();
@@ -31,6 +36,18 @@ public class FriendlyScript : MonoBehaviour
                 Destroy(gameObject);
                 spawnManager.GameLoseCondition();
                 //pause menu
+            }
+        }
+
+        if (isCageDoorOpen)
+        {
+            if (Vector3.Distance(agent.transform.position, playerTransform.position) <= agent.stoppingDistance)
+            {
+                FriendlyStop();
+            }
+            else if (Vector3.Distance(agent.transform.position, playerTransform.position) > agent.stoppingDistance)
+            {
+                FriendlyMove();
             }
         }
     }
