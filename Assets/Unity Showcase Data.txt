@@ -1,0 +1,3 @@
+Impulse Strike
+
+In this FPS game the player has to rescue Friendlies. Player is dropped into a zone where multiple cages are present. By opening each cage player either finds a mutant or friendly, escorting all friendlies will lead to a level win. And any friendly dying by mutant will result in losing the game.
